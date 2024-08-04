@@ -1,31 +1,12 @@
-from http import HTTPStatus
-
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
-from django.urls import reverse
 
 from notes.forms import NoteForm
-from notes.models import Note
+from notes.tests.conftest import BaseClass
 
 User = get_user_model()
 
 
-class TestHomePage(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        """Базовый метод."""
-        cls.author = User.objects.create(username='Комментатор')
-        cls.author_client = Client()
-        cls.author_client .force_login(cls.author)
-        cls.reader = User.objects.create(username='Читатель')
-        cls.reader_client = Client()
-        cls.reader_client.force_login(cls.reader)
-        cls.note = Note.objects.create(title='Заголовок', text='Текст',
-                                       author=cls.author)
-        cls.url_add = reverse('notes:add')
-        cls.url_list = reverse('notes:list')
-        cls.url_edit = reverse('notes:edit', kwargs={'slug': cls.note.slug})
-        cls.http_ok = HTTPStatus.OK
+class TestHomePage(BaseClass):
 
     def test_create_note_page_contains_form(self):
         """На страницы создания и редактирования заметки передаются формы."""

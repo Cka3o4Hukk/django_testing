@@ -1,45 +1,11 @@
-from http import HTTPStatus
-
 from django.contrib.auth import get_user_model
-from django.test import TestCase
-from django.urls import reverse
-from django.test import Client, TestCase
 
-from notes.models import Note
+from .conftest import BaseClass
 
 User = get_user_model()
 
 
-class TestRoutes(TestCase):
-
-    @classmethod
-    def setUpTestData(cls):
-        """Базовый метод."""
-        cls.author = User.objects.create(username='Комментатор')
-        cls.author_client = Client()
-        cls.author_client.force_login(cls.author)
-        cls.reader = User.objects.create(username='Читатель')
-        cls.reader_client = Client()
-        cls.reader_client.force_login(cls.reader)
-        cls.author = User.objects.create(username='Владелец аккаунта')
-        cls.reader = User.objects.create(username='Посторонний пользователь')
-        cls.note = Note.objects.create(title='Заголовок', text='Текст',
-                                       author=cls.author)
-        cls.url_add = reverse('notes:add')
-        cls.url_edit = reverse('notes:edit', kwargs={'slug': cls.note.slug})
-        cls.url_delete = reverse('notes:delete',
-                                 kwargs={'slug': cls.note.slug})
-        cls.url_detail = reverse('notes:detail',
-                                 kwargs={'slug': cls.note.slug})
-        cls.url_list = reverse('notes:list')
-        cls.url_success = reverse('notes:success')
-        cls.url_home = reverse('notes:home')
-        cls.url_login = reverse('users:login')
-        cls.url_logout = reverse('users:logout')
-        cls.url_signup = reverse('users:signup')
-        cls.http_ok = HTTPStatus.OK
-        cls.http_not_found = HTTPStatus.NOT_FOUND
-        cls.http_found = HTTPStatus.FOUND
+class TestRoutes(BaseClass):
 
     def test_pages_availability(self):
         cases = [
@@ -65,3 +31,12 @@ class TestRoutes(TestCase):
         for page, user, status_code in cases:
             response = user.get(page)
             self.assertEqual(response.status_code, status_code)
+
+        address_forwarding = [
+            # Проверка переадресации на страницу логина
+            [self.url_delete, self.delete_url_redirect],
+            [self.url_edit, self.edit_url_redirect],
+        ]
+        for page, expected_url in address_forwarding:
+            response = self.client.get(page)
+            self.assertRedirects(response, expected_url)

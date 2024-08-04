@@ -21,7 +21,7 @@ def test_page_of_missing_form(client, comment, url_detail):
     assert 'form' not in response
 
 
-def test_page_of_missing_form(author_client, comment, list_news, url_home):
+def test_page_of_missing_form(author_client, list_news, url_home):
     """Количество новостей на главной странице — не более 10."""
     response = author_client.get(url_home)
     object_list = response.context['object_list']
@@ -29,7 +29,7 @@ def test_page_of_missing_form(author_client, comment, list_news, url_home):
     assert news_count == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
-def test_news_order(author_client, comment, list_news, url_home):
+def test_news_order(author_client, list_news, url_home):
     """Сортировка новостей от новых к старым."""
     response = author_client.get(url_home)
     object_list = response.context['object_list']
