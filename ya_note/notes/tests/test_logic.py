@@ -1,37 +1,30 @@
 from pytils.translit import slugify
 
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
+from django.test import TestCase
 from django.urls import reverse
 
 from notes.forms import WARNING
 from notes.models import Note
+from .conftest import BaseClass
 
 User = get_user_model()
 
 
-class TestCommentCreation(TestCase):
+class TestCommentCreation(BaseClass, TestCase):
     @classmethod
     def setUpTestData(cls):
-        """Базовый метод."""
+        super().setUpTestData()
         cls.note = {
             'title': 'Новый заголовок',
             'text': 'Новый текст',
             'slug': 'new-slug'
         }
-        cls.author = User.objects.create(username='Комментатор')
-        cls.author_client = Client()
-        cls.author_client .force_login(cls.author)
-        cls.reader = User.objects.create(username='Читатель')
-        cls.reader_client = Client()
-        cls.reader_client.force_login(cls.reader)
-        cls.url_add = reverse('notes:add')
-        cls.url_login = reverse('users:login')
-        cls.url_edit = reverse('notes:edit',
-                               kwargs={'slug': cls.note['slug']})
         cls.url_delete = reverse('notes:delete',
                                  kwargs={'slug': cls.note['slug']})
-        cls.url_success = reverse('notes:success')
+
+    def setUp(self):
+        Note.objects.all().delete()
 
     def test_user_can_create_note(self):
         """Авторизованный пользователь может создать заметку."""
