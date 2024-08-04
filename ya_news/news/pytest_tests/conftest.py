@@ -6,6 +6,8 @@ from django.test.client import Client
 from django.utils import timezone
 from datetime import timedelta
 from news.models import Comment, News
+from django.urls import reverse
+
 
 User = get_user_model()
 
@@ -23,6 +25,11 @@ def news():
         text='Текст заметки',
     )
     return news
+
+
+@pytest.fixture
+def client():
+    return Client()
 
 
 @pytest.fixture
@@ -81,3 +88,38 @@ def create_comments(client, news, author):
         comment.created = now + timedelta(days=index)
         #  И сохраняем эти изменения.
         comment.save()
+
+
+@pytest.fixture
+def url_detail(news):
+    return reverse('news:detail', args=(news.id,))
+
+
+@pytest.fixture
+def url_edit(comment):
+    return reverse('news:edit', args=(comment.id, ))
+
+
+@pytest.fixture
+def url_delete(comment):
+    return reverse('news:delete', args=(comment.id, ))
+
+
+@pytest.fixture
+def url_home():
+    return reverse('news:home')
+
+
+@pytest.fixture
+def url_login():
+    return reverse('users:login')
+
+
+@pytest.fixture
+def url_logout():
+    return reverse('users:logout')
+
+
+@pytest.fixture
+def url_signup():
+    return reverse('users:signup')
